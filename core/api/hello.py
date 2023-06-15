@@ -37,6 +37,20 @@ class CourseAPI(Resource):
     def get(self, id):
         return Course.query.get(id)
 
+    @ns1.expect(course_input_model)
+    @ns1.marshal_with(course_model)
+    def put(self, id):
+        sql = Course.query.get(id)
+        sql.name = ns1.payload["name"]
+        db.session.commit()
+
+        return sql
+
+    def delete(self, id):
+        sql = Course.query.get(id)
+        db.session.delete(sql)
+        return {}, 204
+
 
 @ns1.route("/student")
 class StudentsListAPI(Resource):
@@ -59,3 +73,19 @@ class StudentsAPI(Resource):
     def get(self, id):
         student = Student.query.get(id)
         return student
+
+    @ns1.expect(student_input_model)
+    @ns1.marshal_with(student_model)
+    def put(self, id):
+        sql = Student.query.get(id)
+        sql.name = ns1.payload["name"]
+        sql.course_id = ns1.payload["course_id"]
+
+        db.session.commit()
+        return sql
+
+    def delete(self, id):
+        sql = Student.query.get(id)
+        db.session.delete(sql)
+        db.session.commit()
+        return {}, 204
